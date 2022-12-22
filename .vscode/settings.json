@@ -1,0 +1,11 @@
+{
+    "cSpell.words": [
+        "authjwt",
+        "fastapi",
+        "jsonable",
+        "passlib",
+        "pydantic",
+        "pymongo",
+        "starlette"
+    ]
+}

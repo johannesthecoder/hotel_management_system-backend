@@ -3,25 +3,23 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
-from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from .core.error.error_response import ErrorModel, ErrorResponseModel
-from .core.utilities.jwt_config import JWTAuthSetting
 from .core.constants.error_type import (
-    UNAUTHORIZED, NOT_FOUND, METHOD_NOT_ALLOWED, UNKNOWN_ERROR, UNPROCESSABLE_VALUE
+    UNAUTHORIZED,
+    NOT_FOUND,
+    METHOD_NOT_ALLOWED,
+    UNKNOWN_ERROR,
+    UNPROCESSABLE_VALUE,
 )
+from .features.auth.routes import router as auth_router
 
 
 api = FastAPI(responses={422: {"model": ErrorResponseModel}})
 
 
-@AuthJWT.load_config
-def get_config():
-    return JWTAuthSetting()
-
-
-@api.exception_handler(AuthJWTException)
-def authjwt_exception_handler(exception: AuthJWTException):
+@api.exception_handler(AuthJWTException,)
+def authjwt_exception_handler(request: Request, exception: AuthJWTException):
     return JSONResponse(
         status_code=exception.status_code,
         content=ErrorResponseModel(
@@ -29,9 +27,9 @@ def authjwt_exception_handler(exception: AuthJWTException):
             errors=[
                 ErrorModel(
                     type=UNAUTHORIZED,
-                    message=error.get("message"),
-                    location=error.get("loc"),
-                ) for error in exception.errors()
+                    message=exception.message,
+                    location=["cookies", "access_token"],
+                )
             ]
         ).dict()
     )
@@ -70,7 +68,7 @@ async def http_exception_handler(request: Request, exception: StarletteHTTPExcep
                     errors=[
                         ErrorModel(
                             type=METHOD_NOT_ALLOWED,
-                            message=f"this method[{request.method}] is not allowed for this route. try using an other method",
+                            message=f"this method [{request.method}] is not allowed for this route. try using an other method",
                             location=["path"],
                         )
                     ]
@@ -114,6 +112,11 @@ async def http_exception_handler(request: Request, exception: RequestValidationE
     )
 
 
+api.include_router(auth_router, prefix="/auth")
+
+
 @api.get("/api")
 def root():
-    return {"message": "Welcome to FastAPI with MongoDB"}
+    return {
+        "success": True, "message": "welcome to `hotel management system api`. ;)"
+    }

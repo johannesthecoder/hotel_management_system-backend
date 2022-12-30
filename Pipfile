@@ -6,10 +6,10 @@ name = "pypi"
 [packages]
 fastapi = {extras = ["all"], version = "*"}
 python-dotenv = "*"
-pymongo = {extras = ["srv"], version = "*"}
 pydantic = {extras = ["email"], version = "*"}
 passlib = {extras = ["bcrypt"], version = "*"}
 fastapi-jwt-auth = {extras = ["asymmetric"], version = "*"}
+motor = "*"
 
 [dev-packages]
 autopep8 = "*"

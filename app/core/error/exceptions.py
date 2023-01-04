@@ -2,28 +2,28 @@ from fastapi.exceptions import HTTPException
 from fastapi import status
 
 from ..constants.error_type import (
-NOT_FOUND,
-DUPLICATED_ENTRY,
-UNAUTHORIZED,
-FORBIDDEN,
-BAD_REQUEST,
-UNPROCESSABLE_VALUE,
-TOO_MANY_REQUEST,
-OPERATION_FAILED,
-UNKNOWN_ERROR,
-INTERNAL_ERROR,
+    NOT_FOUND,
+    DUPLICATED_ENTRY,
+    UNAUTHORIZED,
+    FORBIDDEN,
+    BAD_REQUEST,
+    UNPROCESSABLE_VALUE,
+    TOO_MANY_REQUEST,
+    OPERATION_FAILED,
+    UNKNOWN_ERROR,
+    INTERNAL_ERROR,
 
 )
-from .error_response import ErrorModel, ErrorResponseModel
+from ..models.error_response import ErrorSchema, ErrorResponseSchema
 
 
 def custom_http_exception_raiser(http_status, type: str, message: str, location: list[str]):
     raise HTTPException(
         status_code=http_status,
-        detail=ErrorResponseModel(
+        detail=ErrorResponseSchema(
             success=False,
             errors=[
-                ErrorModel(
+                ErrorSchema(
                     type=type,
                     message=message,
                     location=location,
@@ -31,7 +31,6 @@ def custom_http_exception_raiser(http_status, type: str, message: str, location:
             ]
         )
     )
-
 
 
 def raise_not_found_exception(message: str, location: list[str] = []):
@@ -42,6 +41,7 @@ def raise_not_found_exception(message: str, location: list[str] = []):
         location=location
     )
 
+
 def raise_duplicated_entry_exception(message: str, location: list[str] = []):
     custom_http_exception_raiser(
         http_status=status.HTTP_409_CONFLICT,
@@ -49,6 +49,7 @@ def raise_duplicated_entry_exception(message: str, location: list[str] = []):
         message=message,
         location=location
     )
+
 
 def raise_unauthorized_exception(message: str, location: list[str] = []):
     custom_http_exception_raiser(
@@ -58,6 +59,7 @@ def raise_unauthorized_exception(message: str, location: list[str] = []):
         location=location
     )
 
+
 def raise_forbidden_exception(message: str, location: list[str] = []):
     custom_http_exception_raiser(
         http_status=status.HTTP_403_FORBIDDEN,
@@ -65,6 +67,7 @@ def raise_forbidden_exception(message: str, location: list[str] = []):
         message=message,
         location=location
     )
+
 
 def raise_bad_request_exception(message: str, location: list[str] = []):
     custom_http_exception_raiser(
@@ -74,6 +77,7 @@ def raise_bad_request_exception(message: str, location: list[str] = []):
         location=location
     )
 
+
 def raise_unprocessable_value_exception(message: str, location: list[str] = []):
     custom_http_exception_raiser(
         http_status=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -81,6 +85,7 @@ def raise_unprocessable_value_exception(message: str, location: list[str] = []):
         message=message,
         location=location
     )
+
 
 def raise_too_many_request_exception(message: str, location: list[str] = []):
     custom_http_exception_raiser(
@@ -90,6 +95,7 @@ def raise_too_many_request_exception(message: str, location: list[str] = []):
         location=location
     )
 
+
 def raise_operation_failed_exception(message: str, location: list[str] = []):
     custom_http_exception_raiser(
         http_status=status.HTTP_424_FAILED_DEPENDENCY,
@@ -97,6 +103,7 @@ def raise_operation_failed_exception(message: str, location: list[str] = []):
         message=message,
         location=location
     )
+
 
 def raise_unknown_error_exception(message: str, location: list[str] = []):
     custom_http_exception_raiser(
@@ -106,6 +113,7 @@ def raise_unknown_error_exception(message: str, location: list[str] = []):
         location=location
     )
 
+
 def raise_internal_error_exception(message: str, location: list[str] = []):
     custom_http_exception_raiser(
         http_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -113,14 +121,3 @@ def raise_internal_error_exception(message: str, location: list[str] = []):
         message=message,
         location=location
     )
-
-
-
-
-
-
-
-
-
-
-

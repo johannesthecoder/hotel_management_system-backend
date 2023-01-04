@@ -2,12 +2,12 @@ from typing import Any
 from pydantic import BaseModel
 
 
-class ErrorModel(BaseModel):
+class ErrorSchema(BaseModel):
     type: str = "type"
     message: str = "message"
     location: Any = "location"
-    
-class ErrorResponseModel(BaseModel):
+
+
+class ErrorResponseSchema(BaseModel):
     success: bool = False
-    errors: list[ErrorModel]
-    
+    errors: list[ErrorSchema]

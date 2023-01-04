@@ -1,4 +1,3 @@
-import inspect
 from os import environ
 from datetime import datetime, timedelta
 from re import match
@@ -26,7 +25,7 @@ from .models import (
 load_dotenv()
 router = APIRouter()
 employee_router = APIRouter()
-employee_router.tags = ["employee"]
+employee_router.tags = ["Auth"]
 
 # --------------->]  [<---------------
 # TODO: add customer route.
@@ -200,44 +199,26 @@ async def refresh_employee_token(response: Response, Authorize: AuthJWT = Depend
 
 @employee_router.patch("/change_password", response_model=ChangePasswordResponseSchema)
 async def change_employee_password(old_password: str, new_password: str, user_id: AuthJWT = Depends(require_user)):
-    try:
-        if not match(pin_code, new_password):
-            raise_unprocessable_value_exception(
-                message="invalid/incorrect new password. should contain minimum of 5 and maximum of 15 digits",
-                location=["request body", "new_password"]
-            )
+    if not match(pin_code, new_password):
+        raise_unprocessable_value_exception(
+            message="invalid/incorrect new password. should contain minimum of 5 and maximum of 15 digits",
+            location=["request body", "new_password"]
+        )
 
-        employee = await find_employee_by_id(id=user_id)
+    employee = await find_employee_by_id(id=user_id)
 
-        if not verify_password(password=old_password, hashed_password=employee["password"]):
-            raise_unauthorized_exception(
-                message="old password is incorrect",
-                location=["request body", "old_password"]
-            )
+    if not verify_password(password=old_password, hashed_password=employee["password"]):
+        raise_unauthorized_exception(
+            message="old password is incorrect",
+            location=["request body", "old_password"]
+        )
 
-        new_password = hash_password(password=new_password)
+    new_password = hash_password(password=new_password)
 
-        if not await update_employee_password(id=employee["_id"], new_password=new_password):
-            raise_operation_failed_exception(
-                message="could not update password",
-                location=["unknown"]
-            )
-
-    except Exception as e:
-        error = e.__class__.__name__
-
-        if error == "MissingTokenError":
-            raise_bad_request_exception(
-                message="refresh token was not provided.",
-                location=["cookies", "refresh_token"],
-            )
-
-        if error == "HTTPException":
-            raise e
-
-        raise_bad_request_exception(
-            message=error,
-            location=["unknown"],
+    if not await update_employee_password(id=employee["_id"], new_password=new_password):
+        raise_operation_failed_exception(
+            message="could not update password",
+            location=["unknown"]
         )
 
     return ChangePasswordResponseSchema(

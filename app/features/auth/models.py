@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel, Field, EmailStr
-from ...core.constants.roles import EmployeeRole
+from ...core.constants.employee_roles import EmployeeRole
 from ...core.constants.regex import phone_number, pin_code
 
 

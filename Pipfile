@@ -10,6 +10,8 @@ pydantic = {extras = ["email"], version = "*"}
 passlib = {extras = ["bcrypt"], version = "*"}
 fastapi-jwt-auth = {extras = ["asymmetric"], version = "*"}
 motor = "*"
+httpx = "*"
+pytest = "*"
 
 [dev-packages]
 autopep8 = "*"

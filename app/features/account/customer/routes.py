@@ -25,57 +25,6 @@ customer_router = APIRouter()
 customer_router.tags = ["Customer"]
 
 
-@customer_router.post("/", response_model=models.SingleCustomerResponseModel)
-async def register_customer(
-    new_customer: models.CustomerBaseModel,
-    current_user_id: AuthJWT = Depends(
-        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_CUSTOMERS)
-    ),
-):
-    if await controller.find_customer_by_phone_number(
-        phone_number=new_customer.phone_number
-    ):
-        raise_duplicated_entry_exception(
-            message="customer with this phone number={updated_customer.phone_number} already exists",
-            location=["request body", "phone_number"],
-        )
-
-    if new_customer.first_name:
-        new_customer.first_name = new_customer.first_name.lower()
-    if new_customer.last_name:
-        new_customer.last_name = new_customer.last_name.lower()
-    if new_customer.nationality:
-        new_customer.nationality = new_customer.nationality.lower()
-    if new_customer.passport_number:
-        new_customer.passport_number = new_customer.passport_number.lower()
-
-    result = await controller.create_customer(
-        new_customer={
-            **new_customer.dict(),
-            "password": hash_password(
-                password=new_customer.phone_number[-5:]
-            ),
-        },
-        create_by=current_user_id,
-    )
-
-    if not result:
-        raise_operation_failed_exception(
-            message="problem while registering customer"
-        )
-
-    customer = await controller.find_customer_by_phone_number(
-        phone_number=new_customer.phone_number
-    )
-
-    return models.SingleCustomerResponseModel(
-        success=True,
-        customer=dict_to_model(
-            model=models.CustomerReadModel, dict_model=customer
-        ),
-    )
-
-
 @customer_router.get("/me", response_model=models.SingleCustomerResponseModel)
 async def get_me(current_user_id: AuthJWT = Depends(require_user)):
     customer = await controller.find_customer_by_id(id=current_user_id)

@@ -12,7 +12,7 @@ from .core.constants.error_type import (
     UNKNOWN_ERROR,
     UNPROCESSABLE_VALUE,
 )
-from .features.auth.routes import router as auth_router
+from .features.auth.routes import auth_router
 from .features.account import employee_router
 from .features.account import customer_router
 

@@ -1,15 +1,18 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
-from ....core.constants.regex import phone_number
+from ....core.constants import regex
 from ....core.constants.employee_roles import EmployeeRole
 
 
 class EmployeeBaseModel(BaseModel):
     first_name: str
     last_name: str | None = None
-    phone_number: str = Field(regex=phone_number, example="+254787654321")
+    phone_number: str = Field(
+        regex=regex.phone_number, example="+254787654321"
+    )
     roles: list[EmployeeRole] = []
     is_active: bool = True
+    password: str = Field(regex=regex.pin_code)
 
     class Config:
         use_enum_values = True
@@ -17,6 +20,7 @@ class EmployeeBaseModel(BaseModel):
 
 class EmployeeReadModel(EmployeeBaseModel):
     id: str = Field(..., alias="_id")
+    password: str
     created_at: datetime | None = None
     created_by: str | None = None
     updated_at: datetime | None = None
@@ -27,7 +31,7 @@ class EmployeeUpdateModel(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     phone_number: str | None = Field(
-        default=None, regex=phone_number, example="+254787654321"
+        default=None, regex=regex.phone_number, example="+254787654321"
     )
 
 

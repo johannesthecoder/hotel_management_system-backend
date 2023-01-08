@@ -57,8 +57,8 @@ class EmployeeRoleChecker:
         )
 
         if not user:
-            raise_not_found_exception(
-                message="user no longer exists or was deactivated",
+            raise_unauthorized_exception(
+                message="user does not have this access to this route ",
                 location=["cookies", "access_token"],
             )
 

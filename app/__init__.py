@@ -12,9 +12,10 @@ from .core.constants.error_type import (
     UNKNOWN_ERROR,
     UNPROCESSABLE_VALUE,
 )
-from .features.auth.routes import auth_router
+from .features.auth.routers import auth_router
 from .features.account import employee_router
 from .features.account import customer_router
+from .features.inventory import inventory_item_router
 
 
 api = FastAPI(responses={422: {"model": ErrorResponseSchema}})
@@ -124,6 +125,7 @@ async def http_exception_handler(
 api.include_router(auth_router, prefix="/auth")
 api.include_router(employee_router, prefix="/account/employee")
 api.include_router(customer_router, prefix="/account/customer")
+api.include_router(inventory_item_router, prefix="/inventory/item")
 
 
 @api.get("/api")

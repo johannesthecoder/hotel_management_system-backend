@@ -3,7 +3,10 @@ from fastapi import APIRouter, Depends, Query
 from ....core.constants.employee_roles import EmployeeRole
 from ....core.models.common_responses import UpdateResponseModel
 from ....core.constants.regex import pin_code
-from ....core.utilities.converter import dict_to_model
+from ....core.utilities.converter import (
+    dict_to_model,
+    model_to_dict_without_None,
+)
 from ....core.utilities.password import hash_password, verify_password
 from ....core.utilities.jwt_config import (
     AuthJWT,
@@ -22,7 +25,7 @@ from . import controller
 from . import models
 
 employee_router = APIRouter()
-employee_router.tags = ["Employee"]
+employee_router.tags = ["Account - Employee"]
 
 
 @employee_router.get("/me", response_model=models.SingleEmployeeResponseModel)
@@ -340,7 +343,7 @@ async def update_employee_info(
 
     result = await controller.update_employee_info(
         id=employee_id,
-        updated_employee=updated_employee.dict(),
+        updated_employee=model_to_dict_without_None(model=updated_employee),
         updated_by=current_user_id,
     )
 

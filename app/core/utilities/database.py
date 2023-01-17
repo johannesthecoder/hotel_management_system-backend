@@ -7,6 +7,6 @@ load_dotenv()
 
 MONGODB_URL = "mongodb://localhost:27017"
 client = motor.motor_asyncio.AsyncIOMotorClient(environ.get("MONGODB_URL"))
-db = client["hotel_management_database"]
+db = client["hms_db"]
 
 default_find_limit = 25

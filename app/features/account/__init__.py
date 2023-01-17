@@ -1,2 +1,2 @@
-from .employee.routes import employee_router
-from .customer.routes import customer_router
+from .employee.routers import employee_router
+from .customer.routers import customer_router

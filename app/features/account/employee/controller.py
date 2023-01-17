@@ -74,14 +74,13 @@ async def find_one_employee(
     phone_number: str | None = None,
     roles: list[str] = [],
     is_active: bool | None = None,
-    limit: int = default_find_limit,
     skip: int = 0,
 ) -> dict:
     filter = get_processed_filter(
         name=name, phone_number=phone_number, is_active=is_active, roles=roles
     )
 
-    employee = await db["employees"].find_one(filter=filter)
+    employee = await db["employees"].find_one(filter=filter).skip(skip)
 
     return dict(employee) if employee else {}
 

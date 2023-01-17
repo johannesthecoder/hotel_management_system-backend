@@ -3,7 +3,10 @@ from fastapi import APIRouter, Depends, Query
 from ....core.models.common_responses import UpdateResponseModel
 from ....core.constants.regex import pin_code
 from ....core.constants.employee_roles import EmployeeRole
-from ....core.utilities.converter import dict_to_model
+from ....core.utilities.converter import (
+    dict_to_model,
+    model_to_dict_without_None,
+)
 from ....core.utilities.password import hash_password, verify_password
 from ....core.utilities.jwt_config import (
     AuthJWT,
@@ -22,7 +25,7 @@ from . import controller
 from . import models
 
 customer_router = APIRouter()
-customer_router.tags = ["Customer"]
+customer_router.tags = ["Account - Customer"]
 
 
 @customer_router.get("/me", response_model=models.SingleCustomerResponseModel)
@@ -266,7 +269,7 @@ async def update_customer_info(
 
     result = await controller.update_customer_info(
         id=customer_id,
-        updated_customer=updated_customer.dict(),
+        updated_customer=model_to_dict_without_None(model=updated_customer),
         updated_by=current_user_id,
     )
 

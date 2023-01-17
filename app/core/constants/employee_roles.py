@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class EmployeeRole(Enum):
+class EmployeeRole(str, Enum):
     # roles related to employees
     MANAGE_EMPLOYEES = "manage employees"
     VIEW_EMPLOYEES = "view employees"
@@ -23,17 +23,17 @@ class EmployeeRole(Enum):
     GENERATE_ALL_SALES_REPORT = "generate all sales report"
     MANAGE_MENU_ITEMS = "manage menu items"
 
-    # roles related to store
+    # roles related to inventory
     MAKE_PURCHASE = "make purchase"
-    VIEW_STORE_ITEMS = "view store items"
+    VIEW_INVENTORY_ITEMS = "view inventory items"
     ISSUE_ITEM_TO_KITCHEN = "issue item to kitchen"
     UPDATE_PURCHASE = "update purchase"
     UPDATE_ISSUE_ITEM_TO_KITCHEN = "update issue item to kitchen"
-    GENERATE_MY_STORE_REPORT = "generate my store report"
-    GENERATE_ALL_STORE_REPORT = "generate all store report"
-    MANAGE_STORE_ITEMS = "manage store items"
+    GENERATE_MY_INVENTORY_REPORT = "generate my inventory report"
+    GENERATE_ALL_INVENTORY_REPORT = "generate all inventory report"
+    MANAGE_INVENTORY_ITEMS = "manage inventory items"
 
-    # roles related to store and restaurant
+    # roles related to inventory and restaurant
     MANAGE_RESTAURANT_PRODUCTION_COSTING = (
         "manage restaurant production costing"
     )
@@ -53,17 +53,17 @@ class RoleTemplate:
     ]
     chef = [
         EmployeeRole.VIEW_ALL_ORDERS,
-        EmployeeRole.VIEW_STORE_ITEMS,
+        EmployeeRole.VIEW_INVENTORY_ITEMS,
     ]
-    storekeeper = [
+    inventorykeeper = [
         EmployeeRole.MAKE_PURCHASE,
-        EmployeeRole.VIEW_STORE_ITEMS,
+        EmployeeRole.VIEW_INVENTORY_ITEMS,
         EmployeeRole.ISSUE_ITEM_TO_KITCHEN,
         EmployeeRole.UPDATE_PURCHASE,
         EmployeeRole.UPDATE_ISSUE_ITEM_TO_KITCHEN,
-        EmployeeRole.GENERATE_MY_STORE_REPORT,
-        EmployeeRole.GENERATE_ALL_STORE_REPORT,
-        EmployeeRole.MANAGE_STORE_ITEMS,
+        EmployeeRole.GENERATE_MY_INVENTORY_REPORT,
+        EmployeeRole.GENERATE_ALL_INVENTORY_REPORT,
+        EmployeeRole.MANAGE_INVENTORY_ITEMS,
         EmployeeRole.MANAGE_RESTAURANT_PRODUCTION_COSTING,
     ]
     restaurant_supervisor = [
@@ -77,5 +77,5 @@ class RoleTemplate:
         EmployeeRole.TRANSFER_ORDER,
         EmployeeRole.GENERATE_MY_SALES_REPORT,
         EmployeeRole.GENERATE_ALL_SALES_REPORT,
-        *storekeeper,
+        *inventorykeeper,
     ]

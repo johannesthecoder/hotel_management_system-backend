@@ -125,7 +125,7 @@ async def get_employee(
 
     if not employee:
         raise_not_found_exception(
-            message=f"employee with id={employee} not found",
+            message=f"no employee found with an id={employee_id}",
             location=["path parameter", "employee_id"],
         )
 

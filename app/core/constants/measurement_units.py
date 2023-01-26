@@ -58,3 +58,45 @@ measurement_unit_nickname = {
     "soda_botel": "botel",
     "plastic soda botel": "plastic",
 }
+
+
+weight = [
+    "kg",
+    "gram",
+    "a 100 gram",
+    "a 150 gram",
+    "a 200 gram",
+    "quarter kg",
+    "half kg",
+    "one third kg",
+    "flour pack",
+]
+
+volume = [
+    "liter",
+    "milliliter",
+    "juice glass",
+    "tea cup",
+    "soda botel",
+    "plastic soda botel",
+]
+
+count = [
+    "piece",
+    "bunch",
+    "tray",
+    "dozen",
+    "sausage pack",
+]
+
+
+def is_same_measurement_type(a, b) -> bool:
+    # c =
+
+    return (
+        True
+        if (a in weight and b in weight)
+        or (a in volume and b in volume)
+        or (a in count and b in count)
+        else False
+    )

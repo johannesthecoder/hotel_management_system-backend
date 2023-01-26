@@ -226,9 +226,6 @@ async def find_many_items(
             filter=filter, skip=skip, limit=limit
         )
     ]
-    print("$" * 32)
-
-    print([item["unit"] for item in items])
 
     return list(items) if items else []
 

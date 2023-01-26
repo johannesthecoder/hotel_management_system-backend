@@ -23,59 +23,61 @@ class EmployeeRole(str, Enum):
     GENERATE_ALL_SALES_REPORT = "generate all sales report"
     MANAGE_MENU_ITEMS = "manage menu items"
 
-    # roles related to inventory
-    MAKE_PURCHASE = "make purchase"
-    VIEW_INVENTORY_ITEMS = "view inventory items"
-    ISSUE_ITEM_TO_KITCHEN = "issue item to kitchen"
-    UPDATE_PURCHASE = "update purchase"
-    UPDATE_ISSUE_ITEM_TO_KITCHEN = "update issue item to kitchen"
-    GENERATE_MY_INVENTORY_REPORT = "generate my inventory report"
-    GENERATE_ALL_INVENTORY_REPORT = "generate all inventory report"
+    # roles related to inventory items
     MANAGE_INVENTORY_ITEMS = "manage inventory items"
+    VIEW_INVENTORY_ITEMS = "view inventory items"
+    GENERATE_INVENTORY_REPORT = "generate my inventory report"
 
-    # roles related to inventory and restaurant
-    MANAGE_RESTAURANT_PRODUCTION_COSTING = (
-        "manage restaurant production costing"
-    )
+    # roles related to issue
+    ISSUE = "issue"
+    VIEW_ISSUE = "view issue"
+    UPDATE_ISSUE = "update issue"
+    # roles related to purchase
+    PURCHASE = "purchase"
+    VIEW_PURCHASE = "view purchase"
+    UPDATE_PURCHASE = "update purchase"
+
+    # roles related to kitchen
+    MANAGE_KITCHEN = "manage kitchen"
 
 
-class RoleTemplate:
-    waiter = [
-        EmployeeRole.POST_ORDER,
-        EmployeeRole.VIEW_MY_ORDERS,
-        EmployeeRole.GENERATE_MY_SALES_REPORT,
-    ]
-    cashier = [
-        EmployeeRole.VIEW_ALL_ORDERS,
-        EmployeeRole.SETTLE_ORDER,
-        EmployeeRole.TRANSFER_ORDER,
-        EmployeeRole.GENERATE_ALL_SALES_REPORT,
-    ]
-    chef = [
-        EmployeeRole.VIEW_ALL_ORDERS,
-        EmployeeRole.VIEW_INVENTORY_ITEMS,
-    ]
-    inventorykeeper = [
-        EmployeeRole.MAKE_PURCHASE,
-        EmployeeRole.VIEW_INVENTORY_ITEMS,
-        EmployeeRole.ISSUE_ITEM_TO_KITCHEN,
-        EmployeeRole.UPDATE_PURCHASE,
-        EmployeeRole.UPDATE_ISSUE_ITEM_TO_KITCHEN,
-        EmployeeRole.GENERATE_MY_INVENTORY_REPORT,
-        EmployeeRole.GENERATE_ALL_INVENTORY_REPORT,
-        EmployeeRole.MANAGE_INVENTORY_ITEMS,
-        EmployeeRole.MANAGE_RESTAURANT_PRODUCTION_COSTING,
-    ]
-    restaurant_supervisor = [
-        EmployeeRole.POST_ORDER,
-        EmployeeRole.VIEW_MY_ORDERS,
-        EmployeeRole.VIEW_ALL_ORDERS,
-        EmployeeRole.UPDATE_ORDER,
-        EmployeeRole.VOID_ORDER,
-        EmployeeRole.GIFT_ORDER,
-        EmployeeRole.SETTLE_ORDER,
-        EmployeeRole.TRANSFER_ORDER,
-        EmployeeRole.GENERATE_MY_SALES_REPORT,
-        EmployeeRole.GENERATE_ALL_SALES_REPORT,
-        *inventorykeeper,
-    ]
+# class RoleTemplate:
+#     waiter = [
+#         EmployeeRole.POST_ORDER,
+#         EmployeeRole.VIEW_MY_ORDERS,
+#         EmployeeRole.GENERATE_MY_SALES_REPORT,
+#     ]
+#     cashier = [
+#         EmployeeRole.VIEW_ALL_ORDERS,
+#         EmployeeRole.SETTLE_ORDER,
+#         EmployeeRole.TRANSFER_ORDER,
+#         EmployeeRole.GENERATE_ALL_SALES_REPORT,
+#     ]
+#     chef = [
+#         EmployeeRole.VIEW_ALL_ORDERS,
+#         EmployeeRole.VIEW_INVENTORY_ITEMS,
+#     ]
+#     storekeeper = [
+#         EmployeeRole.MAKE_PURCHASE,
+#         EmployeeRole.VIEW_INVENTORY_ITEMS,
+#         EmployeeRole.ISSUE,
+#         EmployeeRole.UPDATE_PURCHASE,
+#         EmployeeRole.UPDATE_ISSUE,
+#         EmployeeRole.GENERATE_MY_INVENTORY_REPORT,
+#         EmployeeRole.GENERATE_ALL_INVENTORY_REPORT,
+#         EmployeeRole.MANAGE_INVENTORY_ITEMS,
+#         EmployeeRole.MANAGE_RESTAURANT_PRODUCTION_COSTING,
+#     ]
+#     restaurant_supervisor = [
+#         EmployeeRole.POST_ORDER,
+#         EmployeeRole.VIEW_MY_ORDERS,
+#         EmployeeRole.VIEW_ALL_ORDERS,
+#         EmployeeRole.UPDATE_ORDER,
+#         EmployeeRole.VOID_ORDER,
+#         EmployeeRole.GIFT_ORDER,
+#         EmployeeRole.SETTLE_ORDER,
+#         EmployeeRole.TRANSFER_ORDER,
+#         EmployeeRole.GENERATE_MY_SALES_REPORT,
+#         EmployeeRole.GENERATE_ALL_SALES_REPORT,
+#         *storekeeper,
+#     ]

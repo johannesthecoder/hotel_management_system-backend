@@ -125,7 +125,7 @@ async def get_customer(
 
     if not customer:
         raise_not_found_exception(
-            message=f"customer with id={customer} not found",
+            message=f"no customer found with an id={customer_id}",
             location=["path parameter", "customer_id"],
         )
 

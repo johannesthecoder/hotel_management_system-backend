@@ -76,7 +76,7 @@ async def get_category(
 
     if not category:
         raise_not_found_exception(
-            message=f"no category found with this id={category_id}",
+            message=f"no category found with an id={category_id}",
             location=["path parameter", "category_id"],
         )
 
@@ -229,7 +229,7 @@ async def get_group(
 
     if not group:
         raise_not_found_exception(
-            message=f"no group found with this id={group_id}",
+            message=f"no group found with an id={group_id}",
             location=["path parameter", "group_id"],
         )
 
@@ -393,7 +393,7 @@ async def get_item(
 
     if not item:
         raise_not_found_exception(
-            message=f"no item found with this id={item_id}",
+            message=f"no item found with an id={item_id}",
             location=["path parameter", "item_id"],
         )
 

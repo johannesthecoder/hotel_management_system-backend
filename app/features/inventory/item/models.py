@@ -91,4 +91,4 @@ class SingleItemResponseModel(BaseModel):
 
 class MultipleItemsResponseModel(BaseModel):
     success: bool
-    items: list[ItemReadModel] = []
+    items: list[ItemReadModel]

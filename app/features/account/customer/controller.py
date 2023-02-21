@@ -29,6 +29,14 @@ def get_processed_filter(
     return filter
 
 
+def get_processed_sort(sort_by: list[str]) -> dict:
+    sort_dict = {}
+
+    for sort_item in sort_by:
+        if sort_item[0] in "+-":
+            sort_dict[sort_item[1:]] = 1 if sort_item[0] == "+" else "-"
+
+
 async def create_customer(new_customer: dict, create_by: str) -> bool:
     inserted_id = await db["customers"].insert_one(
         {
@@ -45,25 +53,26 @@ async def create_customer(new_customer: dict, create_by: str) -> bool:
 
 async def find_many_customers(
     roles: list[str] = [],
-    limit: int | None = None,
-    skip: int | None = None,
     name: str | None = None,
     phone_number: str | None = None,
     is_active: bool | None = None,
+    limit: int = 0,
+    skip: int = 0,
+    sort_by: list[str] = [],
 ) -> list[dict]:
     filter = get_processed_filter(
         name=name, phone_number=phone_number, is_active=is_active, roles=roles
     )
-
-    limit = limit if isinstance(limit, int) else default_find_limit
-    skip = skip if isinstance(skip, int) else 0
+    sort = get_processed_sort(sort_by=sort_by)
 
     customers = [
         customer
-        async for customer in db["customers"]
-        .find(filter=filter)
-        .limit(limit)
-        .skip(skip)
+        async for customer in db["customers"].find(
+            filter=filter,
+            skip=skip,
+            limit=limit if limit > 0 else default_find_limit,
+            sort=sort,
+        )
     ]
 
     return list(customers) if customers else []

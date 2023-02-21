@@ -25,7 +25,7 @@ from . import controller
 from . import models
 
 employee_router = APIRouter()
-employee_router.tags = ["Account - Employee"]
+employee_router.tags = ["Account - Employees"]
 
 
 @employee_router.get("/me", response_model=models.SingleEmployeeResponseModel)
@@ -82,8 +82,11 @@ async def get_employees(
     name: str | None = None,
     phone_number: str | None = None,
     is_active: bool | None = None,
-    limit: int | None = None,
-    skip: int | None = None,
+    limit: int = 0,
+    skip: int = 0,
+    sort_by: list[str] = Query(
+        description="append +[for ascending] or -[for descending] before the name to be sorted with. NOTE: (1) no space between the sign and the name, (2) the arrangement/order of the array maters ..."
+    ),
     current_user_id: AuthJWT = Depends(
         EmployeeRoleChecker(EmployeeRole.VIEW_EMPLOYEES)
     ),
@@ -95,6 +98,7 @@ async def get_employees(
         is_active=is_active,
         limit=limit,
         skip=skip,
+        sort_by=sort_by,
     )
 
     return models.MultipleEmployeeResponseModel(

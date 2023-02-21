@@ -2,15 +2,23 @@ from enum import Enum
 
 
 class EmployeeRole(str, Enum):
-    # roles related to employees
+    # roles related to account
+    # roles related to account.employees
     MANAGE_EMPLOYEES = "manage employees"
     VIEW_EMPLOYEES = "view employees"
 
-    # roles related to customers
+    # roles related to account.customers
     MANAGE_CUSTOMERS = "manage customers"
     VIEW_CUSTOMERS = "view customers"
 
     # roles related to restaurant
+
+    ## roles related to restaurant.menu
+    MANAGE_MENU_ITEMS = "manage menu items"
+    VIEW_MENU_ITEMS = "manage menu items"
+    UPDATE_MENU_ITEMS = "manage menu items"
+
+    ## roles related to restaurant.orders
     POST_ORDER = "post order"
     VIEW_MY_ORDERS = "view my orders"
     VIEW_ALL_ORDERS = "view all orders"
@@ -21,18 +29,20 @@ class EmployeeRole(str, Enum):
     TRANSFER_ORDER = "transfer order"
     GENERATE_MY_SALES_REPORT = "generate my sales report"
     GENERATE_ALL_SALES_REPORT = "generate all sales report"
-    MANAGE_MENU_ITEMS = "manage menu items"
 
-    # roles related to inventory items
+    # roles related to inventory
+
+    ## roles related to inventory.items
     MANAGE_INVENTORY_ITEMS = "manage inventory items"
     VIEW_INVENTORY_ITEMS = "view inventory items"
     GENERATE_INVENTORY_REPORT = "generate my inventory report"
 
-    # roles related to issue
+    ## roles related to inventory.issues
     ISSUE = "issue"
     VIEW_ISSUE = "view issue"
     UPDATE_ISSUE = "update issue"
-    # roles related to purchase
+
+    ## roles related to inventory.purchases
     PURCHASE = "purchase"
     VIEW_PURCHASE = "view purchase"
     UPDATE_PURCHASE = "update purchase"

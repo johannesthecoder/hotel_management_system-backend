@@ -1,6 +1,6 @@
 from datetime import datetime
 from bson.objectid import ObjectId
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from ....core.constants.measurement_units import (
     is_same_measurement_type,
     measurement_unit_value,
@@ -23,7 +23,7 @@ from . import controller
 
 inventory_purchase_router = APIRouter()
 
-inventory_purchase_router.tags = ["Inventory - Purchase"]
+inventory_purchase_router.tags = ["Inventory - Purchases"]
 
 
 @inventory_purchase_router.post(
@@ -115,6 +115,9 @@ async def get_purchases(
     purchased_at_to: datetime | None = None,
     limit: int | None = None,
     skip: int = 0,
+    sort_by: list[str] = Query(
+        description="append +[for ascending] or -[for descending] before the name to be sorted with. NOTE: (1) no space between the sign and the name, (2) the arrangement/order of the array maters ..."
+    ),
     current_user_id: AuthJWT = Depends(
         EmployeeRoleChecker(required_role=EmployeeRole.VIEW_PURCHASE)
     ),
@@ -138,6 +141,7 @@ async def get_purchases(
         purchased_at_to=purchased_at_to,
         limit=limit,
         skip=skip,
+        sort_by=sort_by,
     )
 
     if not type(purchases) == list:

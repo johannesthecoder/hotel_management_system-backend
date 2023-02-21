@@ -29,6 +29,14 @@ def get_processed_filter(
     return filter
 
 
+def get_processed_sort(sort_by: list[str]) -> dict:
+    sort_dict = {}
+
+    for sort_item in sort_by:
+        if sort_item[0] in "+-":
+            sort_dict[sort_item[1:]] = 1 if sort_item[0] == "+" else "-"
+
+
 async def issue_item(new_issue: dict, issued_by: str) -> str | None:
     inserted_issue = await db["inventory_issues"].insert_one(
         {
@@ -47,8 +55,9 @@ async def find_many_issues(
     issued_by: str | None = None,
     issued_at_from: datetime | None = None,
     issued_at_to: datetime | None = None,
-    limit: int = default_find_limit,
+    limit: int = 0,
     skip: int = 0,
+    sort_by: list[str] = [],
 ) -> list[dict]:
     filter = get_processed_filter(
         item=item,
@@ -56,14 +65,15 @@ async def find_many_issues(
         issued_at_from=issued_at_from,
         issued_at_to=issued_at_to,
     )
-
-    limit = limit if isinstance(limit, int) else default_find_limit
-    skip = skip if isinstance(skip, int) else 0
+    sort = get_processed_sort(sort_by=sort_by)
 
     issues = [
         issue
         async for issue in db["inventory_issues"].find(
-            filter=filter, skip=skip, limit=limit
+            filter=filter,
+            skip=skip,
+            limit=limit if limit > 0 else default_find_limit,
+            sort=sort,
         )
     ]
 
@@ -87,8 +97,6 @@ async def find_one_issue(
         issued_at_from=issued_at_from,
         issued_at_to=issued_at_to,
     )
-
-    skip = skip if isinstance(skip, int) else 0
 
     issue = await db["inventory_issues"].find_one(filter=filter, skip=skip)
 

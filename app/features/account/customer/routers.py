@@ -25,7 +25,7 @@ from . import controller
 from . import models
 
 customer_router = APIRouter()
-customer_router.tags = ["Account - Customer"]
+customer_router.tags = ["Account - Customers"]
 
 
 @customer_router.get("/me", response_model=models.SingleCustomerResponseModel)
@@ -82,8 +82,9 @@ async def get_customers(
     name: str | None = None,
     phone_number: str | None = None,
     is_active: bool | None = None,
-    limit: int | None = None,
-    skip: int | None = None,
+    sort_by: list[str] = Query(),
+    limit: int = 0,
+    skip: int = 0,
     current_user_id: AuthJWT = Depends(
         EmployeeRoleChecker(EmployeeRole.VIEW_EMPLOYEES)
     ),
@@ -95,6 +96,7 @@ async def get_customers(
         is_active=is_active,
         limit=limit,
         skip=skip,
+        sort_by=sort_by,
     )
 
     return models.MultipleCustomerResponseModel(

@@ -18,6 +18,7 @@ from .features.account import customer_router
 from .features.inventory import inventory_item_router
 from .features.inventory import inventory_issue_router
 from .features.inventory import inventory_purchase_router
+from .features.restaurant import menu_router
 
 
 api = FastAPI(responses={422: {"model": ErrorResponseSchema}})
@@ -124,12 +125,13 @@ async def http_exception_handler(
     )
 
 
-api.include_router(inventory_purchase_router, prefix="/inventory/purchase")
-api.include_router(inventory_issue_router, prefix="/inventory/issue")
+api.include_router(menu_router, prefix="/restaurant/menu")
 api.include_router(auth_router, prefix="/auth")
 api.include_router(employee_router, prefix="/account/employee")
 api.include_router(customer_router, prefix="/account/customer")
 api.include_router(inventory_item_router, prefix="/inventory/item")
+api.include_router(inventory_purchase_router, prefix="/inventory/purchase")
+api.include_router(inventory_issue_router, prefix="/inventory/issue")
 
 
 @api.get("/api")

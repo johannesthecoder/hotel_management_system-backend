@@ -8,7 +8,6 @@ from app.core.utilities.converter import (
 )
 from ....core.utilities.jwt_config import AuthJWT, EmployeeRoleChecker
 from app.core.error.exceptions import (
-    raise_bad_request_exception,
     raise_duplicated_entry_exception,
     raise_not_found_exception,
     raise_operation_failed_exception,
@@ -17,21 +16,20 @@ from app.core.error.exceptions import (
 from . import models
 from . import controller
 
-inventory_item_router = APIRouter()
+menu_router = APIRouter()
 category_router = APIRouter()
 group_router = APIRouter()
 item_router = APIRouter()
-
-category_router.tags = ["Inventory - Categories"]
-group_router.tags = ["Inventory - Groups"]
-item_router.tags = ["Inventory - Items"]
+category_router.tags = ["Menu - Categories"]
+group_router.tags = ["Menu - Groups"]
+item_router.tags = ["Menu - Items"]
 
 
 @category_router.post("/", response_model=models.SingleCategoryResponseModel)
 async def create_category(
     new_category: models.CategoryBaseModel,
     current_user_id: AuthJWT = Depends(
-        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_INVENTORY_ITEMS)
+        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_MENU_ITEMS)
     ),
 ):
     new_category.name = new_category.name.lower()
@@ -48,7 +46,7 @@ async def create_category(
     category = await controller.find_one_category(name=new_category.name)
     if not category:
         raise_operation_failed_exception(
-            message="problem while creating inventory category"
+            message="problem while creating menu category"
         )
 
     return models.SingleCategoryResponseModel(
@@ -66,7 +64,7 @@ async def create_category(
 async def get_category(
     category_id: str,
     current_user_id: AuthJWT = Depends(
-        EmployeeRoleChecker(required_role=EmployeeRole.VIEW_INVENTORY_ITEMS)
+        EmployeeRoleChecker(required_role=EmployeeRole.VIEW_MENU_ITEMS)
     ),
 ):
     if not ObjectId.is_valid(category_id):
@@ -96,14 +94,14 @@ async def get_category(
 )
 async def get_categories(
     current_user_id: AuthJWT = Depends(
-        EmployeeRoleChecker(required_role=EmployeeRole.VIEW_INVENTORY_ITEMS)
+        EmployeeRoleChecker(required_role=EmployeeRole.VIEW_MENU_ITEMS)
     ),
 ):
     categories = await controller.find_many_categories()
 
     if not type(categories) == list:
         raise_operation_failed_exception(
-            message="problem while getting inventory category"
+            message="problem while getting menu category"
         )
 
     return models.MultipleCategoriesResponseModel(
@@ -126,7 +124,7 @@ async def update_category(
     category_id: str,
     updated_category: models.CategoryUpdateModel,
     current_user_id: AuthJWT = Depends(
-        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_INVENTORY_ITEMS)
+        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_MENU_ITEMS)
     ),
 ):
     if not ObjectId.is_valid(category_id):
@@ -169,7 +167,7 @@ async def update_category(
 async def create_groups(
     new_group: models.GroupBaseModel,
     current_user_id: AuthJWT = Depends(
-        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_INVENTORY_ITEMS)
+        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_MENU_ITEMS)
     ),
 ):
     if not ObjectId.is_valid(new_group.category):
@@ -201,7 +199,7 @@ async def create_groups(
     group = await controller.find_one_group(name=new_group.name)
     if not group:
         raise_operation_failed_exception(
-            message="problem while creating inventory group"
+            message="problem while creating menu group"
         )
 
     return models.SingleGroupResponseModel(
@@ -219,7 +217,7 @@ async def create_groups(
 async def get_group(
     group_id: str,
     current_user_id: AuthJWT = Depends(
-        EmployeeRoleChecker(required_role=EmployeeRole.VIEW_INVENTORY_ITEMS)
+        EmployeeRoleChecker(required_role=EmployeeRole.VIEW_MENU_ITEMS)
     ),
 ):
     if not ObjectId.is_valid(group_id):
@@ -245,14 +243,14 @@ async def get_group(
 @group_router.get("/", response_model=models.MultipleGroupsResponseModel)
 async def get_group(
     current_user_id: AuthJWT = Depends(
-        EmployeeRoleChecker(required_role=EmployeeRole.VIEW_INVENTORY_ITEMS)
+        EmployeeRoleChecker(required_role=EmployeeRole.VIEW_MENU_ITEMS)
     ),
 ):
     groups = await controller.find_many_groups()
 
     if not type(groups) == list:
         raise_operation_failed_exception(
-            message="problem while getting inventory group"
+            message="problem while getting menu group"
         )
 
     return models.MultipleGroupsResponseModel(
@@ -275,7 +273,7 @@ async def update_group(
     group_id: str,
     updated_group: models.GroupUpdateModel,
     current_user_id: AuthJWT = Depends(
-        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_INVENTORY_ITEMS)
+        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_MENU_ITEMS)
     ),
 ):
     if not ObjectId.is_valid(group_id):
@@ -341,7 +339,7 @@ async def update_group(
 async def create_item(
     new_item: models.ItemBaseModel,
     current_user_id: AuthJWT = Depends(
-        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_INVENTORY_ITEMS)
+        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_MENU_ITEMS)
     ),
 ):
     if not ObjectId.is_valid(new_item.group):
@@ -356,10 +354,43 @@ async def create_item(
             location=["request body", "group"],
         )
 
+    for accompaniment in new_item.accompaniments:
+        if not ObjectId.is_valid(accompaniment):
+            raise_unprocessable_value_exception(
+                message=f"invalid item_id={accompaniment}",
+                location=[
+                    "request body",
+                    "accompaniments",
+                    new_item.accompaniments.index(accompaniment),
+                ],
+            )
+
+        item = await controller.find_item_by_id(id=accompaniment)
+        if item:
+            if not item.get("is_accompaniment"):
+                raise_unprocessable_value_exception(
+                    message=f"this item [id={accompaniment}] can't be an accompaniment",
+                    location=[
+                        "request body",
+                        "accompaniments",
+                        new_item.accompaniments.index(accompaniment),
+                    ],
+                )
+        else:
+            raise_not_found_exception(
+                message=f"no menu item[accompaniment] found with id={accompaniment}",
+                location=[
+                    "request body",
+                    "accompaniments",
+                    new_item.accompaniments.index(accompaniment),
+                ],
+            )
+
     new_item.name = new_item.name.lower()
 
     if await controller.item_exists(
-        name=new_item.name, group=new_item.group, unit=new_item.unit
+        name=new_item.name,
+        group=new_item.group,
     ):
         raise_duplicated_entry_exception(
             message="this item already exists",
@@ -373,7 +404,7 @@ async def create_item(
     item = await controller.find_one_item(name=new_item.name)
     if not item:
         raise_operation_failed_exception(
-            message="problem while creating inventory item"
+            message="problem while creating menu item"
         )
 
     return models.SingleItemResponseModel(
@@ -389,7 +420,7 @@ async def create_item(
 async def get_item(
     item_id: str,
     current_user_id: AuthJWT = Depends(
-        EmployeeRoleChecker(required_role=EmployeeRole.VIEW_INVENTORY_ITEMS)
+        EmployeeRoleChecker(required_role=EmployeeRole.VIEW_MENU_ITEMS)
     ),
 ):
     if not ObjectId.is_valid(item_id):
@@ -416,20 +447,18 @@ async def get_item(
 async def get_items(
     name: str | None = None,
     group: str | None = None,
-    running_low: bool | None = None,
     limit: int = 0,
     skip: int = 0,
     sort_by: list[str] = Query(
         description="append +[for ascending] or -[for descending] before the name to be sorted with. NOTE: (1) no space between the sign and the name, (2) the arrangement/order of the array maters ..."
     ),
     current_user_id: AuthJWT = Depends(
-        EmployeeRoleChecker(required_role=EmployeeRole.VIEW_INVENTORY_ITEMS)
+        EmployeeRoleChecker(required_role=EmployeeRole.VIEW_MENU_ITEMS)
     ),
 ):
     items = await controller.find_many_items(
         name=name,
         group=group,
-        running_low=running_low,
         limit=limit,
         skip=skip,
         sort_by=sort_by,
@@ -437,7 +466,7 @@ async def get_items(
 
     if not type(items) == list:
         raise_operation_failed_exception(
-            message="problem while getting inventory item"
+            message="problem while getting menu item"
         )
 
     return models.MultipleItemsResponseModel(
@@ -460,7 +489,7 @@ async def update_item(
     item_id: str,
     updated_item: models.ItemUpdateModel,
     current_user_id: AuthJWT = Depends(
-        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_INVENTORY_ITEMS)
+        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_MENU_ITEMS)
     ),
 ):
     if not ObjectId.is_valid(item_id):
@@ -478,24 +507,23 @@ async def update_item(
     if updated_item.name:
         updated_item.name = updated_item.name.lower()
 
-    old_item = await controller.find_item_by_id(id=item_id)
+    if updated_item.name or updated_item.group:
+        old_item = await controller.find_item_by_id(id=item_id)
 
-    updated_item_checker_dict = {
-        "name": old_item["name"],
-        "group": old_item["group"],
-        "unit": old_item["unit"],
-        **model_to_dict_without_None(model=updated_item),
-    }
+        updated_item_checker_dict = {
+            "name": old_item["name"],
+            "group": old_item["group"],
+            **model_to_dict_without_None(model=updated_item),
+        }
 
-    if await controller.item_exists(
-        group=updated_item_checker_dict["group"],
-        name=updated_item_checker_dict["name"],
-        unit=updated_item_checker_dict["unit"],
-    ):
-        raise_duplicated_entry_exception(
-            message="this item already exists",
-            location=["request body", "name"],
-        )
+        if await controller.item_exists(
+            group=updated_item_checker_dict["group"],
+            name=updated_item_checker_dict["name"],
+        ):
+            raise_duplicated_entry_exception(
+                message="this item already exists",
+                location=["request body", "name"],
+            )
 
     result = await controller.update_item_info(
         id=item_id,
@@ -516,6 +544,138 @@ async def update_item(
     )
 
 
-inventory_item_router.include_router(category_router, prefix="/category")
-inventory_item_router.include_router(group_router, prefix="/group")
-inventory_item_router.include_router(item_router, prefix="/item")
+@item_router.patch(
+    "/add_accompaniments/{item_id}",
+    response_model=models.SingleItemResponseModel,
+)
+async def add_item_accompaniments(
+    item_id: str,
+    accompaniments: list[str],
+    current_user_id: AuthJWT = Depends(
+        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_MENU_ITEMS)
+    ),
+):
+    if not ObjectId.is_valid(item_id):
+        raise_unprocessable_value_exception(
+            message=f"invalid item_id={item_id}",
+            location=["path parameter", "item_is"],
+        )
+
+    for accompaniment in accompaniments:
+        if not ObjectId.is_valid(accompaniment):
+            raise_unprocessable_value_exception(
+                message=f"invalid item_id={accompaniment}",
+                location=[
+                    "request body",
+                    accompaniments.index(accompaniment),
+                ],
+            )
+
+        item = await controller.find_item_by_id(id=accompaniment)
+
+        if item:
+            if not item.get("is_accompaniment"):
+                raise_unprocessable_value_exception(
+                    message=f"this item [id={accompaniment}] can't be an accompaniment",
+                    location=[
+                        "request body",
+                        accompaniments.index(accompaniment),
+                    ],
+                )
+        else:
+            raise_not_found_exception(
+                message=f"no menu item[accompaniment] found with id={accompaniment}",
+                location=[
+                    "request body",
+                    accompaniments.index(accompaniment),
+                ],
+            )
+
+    result = await controller.add_item_accompaniments(
+        id=item_id, accompaniments=accompaniments, updated_by=current_user_id
+    )
+
+    item = await controller.find_item_by_id(id=item_id)
+
+    print("*" * 12 + "TESTING" + "*" * 12)
+    print(item)
+    print(result)
+
+    if not result or not item:
+        raise_operation_failed_exception(
+            message="problem while updating item"
+        )
+
+    return models.SingleItemResponseModel(
+        success=True,
+        item=dict_to_model(model=models.ItemReadModel, dict_model=item),
+    )
+
+
+@item_router.patch(
+    "/remove_accompaniments/{item_id}",
+    response_model=models.SingleItemResponseModel,
+)
+async def remove_item_accompaniments(
+    item_id: str,
+    accompaniments: list[str],
+    current_user_id: AuthJWT = Depends(
+        EmployeeRoleChecker(required_role=EmployeeRole.MANAGE_MENU_ITEMS)
+    ),
+):
+    if not ObjectId.is_valid(item_id):
+        raise_unprocessable_value_exception(
+            message=f"invalid item_id={item_id}",
+            location=["path parameter", "item_is"],
+        )
+
+    for accompaniment in accompaniments:
+        if not ObjectId.is_valid(accompaniment):
+            raise_unprocessable_value_exception(
+                message=f"invalid item_id={accompaniment}",
+                location=[
+                    "request body",
+                    accompaniments.index(accompaniment),
+                ],
+            )
+
+        item = await controller.find_item_by_id(id=accompaniment)
+
+        if item:
+            if not item.get("is_accompaniment"):
+                raise_unprocessable_value_exception(
+                    message=f"this item [id={accompaniment}] can't be an accompaniment",
+                    location=[
+                        "request body",
+                        accompaniments.index(accompaniment),
+                    ],
+                )
+        else:
+            raise_not_found_exception(
+                message=f"no menu item[accompaniment] found with id={accompaniment}",
+                location=[
+                    "request body",
+                    accompaniments.index(accompaniment),
+                ],
+            )
+
+    result = await controller.remove_item_accompaniments(
+        id=item_id, accompaniments=accompaniments, updated_by=current_user_id
+    )
+
+    item = await controller.find_item_by_id(id=item_id)
+
+    if not result or not item:
+        raise_operation_failed_exception(
+            message="problem while updating item"
+        )
+
+    return models.SingleItemResponseModel(
+        success=True,
+        item=dict_to_model(model=models.ItemReadModel, dict_model=item),
+    )
+
+
+menu_router.include_router(category_router, prefix="/category")
+menu_router.include_router(group_router, prefix="/group")
+menu_router.include_router(item_router, prefix="/item")

@@ -5,11 +5,11 @@ from ....core.utilities.converter import str_to_match_all_regex
 
 
 async def category_exists(name: str):
-    return bool(await db["inventory_categories"].find_one({"name": name}))
+    return bool(await db["menu_categories"].find_one({"name": name}))
 
 
 async def create_category(new_category: dict, create_by: str) -> bool:
-    inserted_id = await db["inventory_categories"].insert_one(
+    inserted_id = await db["menu_categories"].insert_one(
         {
             **new_category,
             "created_at": datetime.utcnow(),
@@ -34,7 +34,7 @@ async def find_many_categories(
 
     categories = [
         category
-        async for category in db["inventory_categories"].find(
+        async for category in db["menu_categories"].find(
             filter=filter,
             skip=skip,
             limit=limit if limit > 0 else default_find_limit,
@@ -52,15 +52,13 @@ async def find_one_category(
     if name:
         filter["name"] = {"$regex": str_to_match_all_regex(s=name)}
 
-    category = await db["inventory_categories"].find_one(
-        filter=filter, skip=skip
-    )
+    category = await db["menu_categories"].find_one(filter=filter, skip=skip)
 
     return dict(category) if category else {}
 
 
 async def find_category_by_id(id: str) -> dict:
-    category = await db["inventory_categories"].find_one(
+    category = await db["menu_categories"].find_one(
         filter={"_id": ObjectId(id)}
     )
 
@@ -70,7 +68,7 @@ async def find_category_by_id(id: str) -> dict:
 async def update_category_info(
     id: str, updated_category: dict, updated_by: str
 ) -> bool:
-    result = await db["inventory_categories"].update_one(
+    result = await db["menu_categories"].update_one(
         filter={"_id": ObjectId(id)},
         update={
             "$set": {
@@ -86,14 +84,12 @@ async def update_category_info(
 
 async def group_exists(name: str, category: str):
     return bool(
-        await db["inventory_groups"].find_one(
-            {"name": name, "category": category}
-        )
+        await db["menu_groups"].find_one({"name": name, "category": category})
     )
 
 
 async def create_group(new_group: dict, create_by: str) -> bool:
-    inserted_id = await db["inventory_groups"].insert_one(
+    inserted_id = await db["menu_groups"].insert_one(
         {
             **new_group,
             "created_at": datetime.utcnow(),
@@ -117,7 +113,7 @@ async def find_many_groups(
 
     groups = [
         group
-        async for group in db["inventory_groups"].find(
+        async for group in db["menu_groups"].find(
             filter=filter,
             skip=skip,
             limit=limit if limit > 0 else default_find_limit,
@@ -135,15 +131,13 @@ async def find_one_group(
     if name:
         filter["name"] = {"$regex": str_to_match_all_regex(s=name)}
 
-    group = await db["inventory_groups"].find_one(filter=filter, skip=skip)
+    group = await db["menu_groups"].find_one(filter=filter, skip=skip)
 
     return dict(group) if group else {}
 
 
 async def find_group_by_id(id: str) -> dict:
-    group = await db["inventory_groups"].find_one(
-        filter={"_id": ObjectId(id)}
-    )
+    group = await db["menu_groups"].find_one(filter={"_id": ObjectId(id)})
 
     return dict(group) if group else {}
 
@@ -151,7 +145,7 @@ async def find_group_by_id(id: str) -> dict:
 async def update_group_info(
     id: str, updated_group: dict, updated_by: str
 ) -> bool:
-    result = await db["inventory_groups"].update_one(
+    result = await db["menu_groups"].update_one(
         filter={"_id": ObjectId(id)},
         update={
             "$set": {
@@ -167,7 +161,6 @@ async def update_group_info(
 
 def get_processed_filter(
     name: str | None = None,
-    running_low: bool | None = None,
     group: str | None = None,
 ) -> dict:
     filter = {}
@@ -176,8 +169,6 @@ def get_processed_filter(
         filter["name"] = {"$regex": str_to_match_all_regex(s=name)}
     if group:
         filter["group"] = group
-    if type(running_low) == bool:
-        filter["$expr"] = {"$gte": ["$minimum_quantity", "$quantity"]}
 
     return filter
 
@@ -190,16 +181,14 @@ def get_processed_sort(sort_by: list[str]) -> dict:
             sort_dict[sort_item[1:]] = 1 if sort_item[0] == "+" else "-"
 
 
-async def item_exists(name: str, group: str, unit: str):
+async def item_exists(name: str, group: str):
     return bool(
-        await db["inventory_items"].find_one(
-            {"name": name, "group": group, "unit": unit}
-        )
+        await db["menu_items"].find_one({"name": name, "group": group})
     )
 
 
 async def create_item(new_item: dict, create_by: str) -> bool:
-    inserted_id = await db["inventory_items"].insert_one(
+    inserted_id = await db["menu_items"].insert_one(
         {
             **new_item,
             "created_at": datetime.utcnow(),
@@ -215,19 +204,16 @@ async def create_item(new_item: dict, create_by: str) -> bool:
 async def find_many_items(
     name: str | None = None,
     group: str | None = None,
-    running_low: bool | None = None,
     limit: int = 0,
     skip: int = 0,
     sort_by: list[str] = [],
 ) -> list[dict]:
-    filter = get_processed_filter(
-        name=name, running_low=running_low, group=group
-    )
+    filter = get_processed_filter(name=name, group=group)
     sort = get_processed_sort(sort_by=sort_by)
 
     items = [
         item
-        async for item in db["inventory_items"].find(
+        async for item in db["menu_items"].find(
             filter=filter,
             skip=skip,
             limit=limit if limit > 0 else default_find_limit,
@@ -241,30 +227,29 @@ async def find_many_items(
 async def find_one_item(
     name: str | None = None,
     group: str | None = None,
-    running_low: bool | None = None,
     skip: int = 0,
 ) -> dict:
-    filter = get_processed_filter(
-        name=name, running_low=running_low, group=group
-    )
+    filter = get_processed_filter(name=name, group=group)
 
-    item = await db["inventory_items"].find_one(filter=filter, skip=skip)
+    item = await db["menu_items"].find_one(filter=filter, skip=skip)
 
     return dict(item) if item else {}
 
 
 async def find_item_by_id(id: str) -> dict:
-    item = await db["inventory_items"].find_one(filter={"_id": ObjectId(id)})
+    item = await db["menu_items"].find_one(filter={"_id": ObjectId(id)})
 
     return dict(item) if item else {}
 
 
-async def update_item_cost(id: str, new_cost: float, updated_by: str) -> bool:
-    result = await db["inventory_items"].update_one(
+async def update_item_info(
+    id: str, updated_item: dict, updated_by: str
+) -> bool:
+    result = await db["menu_items"].update_one(
         filter={"_id": ObjectId(id)},
         update={
             "$set": {
-                "cost": new_cost,
+                **updated_item,
                 "updated_at": datetime.utcnow(),
                 "updated_by": updated_by,
             }
@@ -274,17 +259,34 @@ async def update_item_cost(id: str, new_cost: float, updated_by: str) -> bool:
     return True if result.modified_count > 0 else False
 
 
-async def update_item_info(
-    id: str, updated_item: dict, updated_by: str
-) -> bool:
-    result = await db["inventory_items"].update_one(
+async def add_item_accompaniments(
+    id: str, accompaniments: list[str], updated_by
+):
+    result = await db["menu_items"].update_one(
         filter={"_id": ObjectId(id)},
         update={
+            "$addToSet": {"accompaniments": {"$each": accompaniments}},
             "$set": {
-                **updated_item,
-                "updated_at": datetime.utcnow(),
                 "updated_by": updated_by,
-            }
+                "updated_at": datetime.utcnow(),
+            },
+        },
+    )
+
+    return True if result.modified_count > 0 else False
+
+
+async def remove_item_accompaniments(
+    id: str, accompaniments: list[str], updated_by
+):
+    result = await db["menu_items"].update_one(
+        filter={"_id": ObjectId(id)},
+        update={
+            "$pull": {"accompaniments": {"$in": accompaniments}},
+            "$set": {
+                "updated_by": updated_by,
+                "updated_at": datetime.utcnow(),
+            },
         },
     )
 

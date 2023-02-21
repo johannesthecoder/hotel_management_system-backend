@@ -1,6 +1,6 @@
 from datetime import datetime
 from bson.objectid import ObjectId
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from ....core.constants.measurement_units import (
     is_same_measurement_type,
     measurement_unit_value,
@@ -23,7 +23,7 @@ from . import controller
 
 inventory_issue_router = APIRouter()
 
-inventory_issue_router.tags = ["Inventory - Issue"]
+inventory_issue_router.tags = ["Inventory - Issues"]
 
 
 @inventory_issue_router.post(
@@ -120,8 +120,11 @@ async def get_issues(
     issued_by: str | None = None,
     issued_at_from: datetime | None = None,
     issued_at_to: datetime | None = None,
-    limit: int | None = None,
+    limit: int = 0,
     skip: int = 0,
+    sort_by: list[str] = Query(
+        description="append +[for ascending] or -[for descending] before the name to be sorted with. NOTE: (1) no space between the sign and the name, (2) the arrangement/order of the array maters ..."
+    ),
     current_user_id: AuthJWT = Depends(
         EmployeeRoleChecker(required_role=EmployeeRole.VIEW_ISSUE)
     ),
@@ -145,6 +148,7 @@ async def get_issues(
         issued_at_to=issued_at_to,
         limit=limit,
         skip=skip,
+        sort_by=sort_by,
     )
 
     if not type(issues) == list:
